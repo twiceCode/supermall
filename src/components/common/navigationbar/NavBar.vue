@@ -16,14 +16,14 @@ export default {
 <style>
 .navbar{
     display: flex;
-    height: 30%;
+    height: 44px;
     line-height: 44px;
     text-align: center;
     color: #fff;
     box-shadow: 0px,1px,1px,rgba(100, 100, 100, .1);
 }
 .left,.right{
-    width: 20%;
+    width: 50px;
 }
 .center{
     flex: 1;
