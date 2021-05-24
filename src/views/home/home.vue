@@ -5,11 +5,17 @@
         <p>购物街</p>
       </template>
     </nav-bar>
-    <better-scroll class="content" ref="scroll" :probe-type="3" @scrollPosition="scrollPosition">
-      <home-swiper :banners="banners"/>
+    <tab-control :titles="titles" class="tab-control"
+     @tabClick="getGoodsType" 
+     v-show="isShowTabControlSticky"
+     ref="tabcontrol1"/>
+    <better-scroll class="content" ref="scroll" 
+    :probe-type="3" @scrollPosition="scrollPosition" 
+    @pullingUp="loadMore" :pull-up-load="true">
+      <home-swiper :banners="banners" @imgLoad="swiperImgLoad"/>
       <recommend-view :recommends="recommends"/>
       <feature/>
-      <tab-control :titles="titles" class="tab-control" @tabClick="getGoodsType"/>
+      <tab-control :titles="titles" class="tab-control" @tabClick="getGoodsType" ref="tabcontrol2"/>
       <goods-list :goods="showGoodsType"/>
     </better-scroll>
     <back-top @click.native="backtop" v-show="isShow"/>
@@ -30,6 +36,9 @@ import Feature from './ChildComponents/Feature'
 // 网络请求
 import {getHomeMultidata,getGoodsData} from 'network/home'
 
+// 工具类
+import debounce from 'utils/debounce.js'
+
 export default {
     name: 'Home',
     data() {
@@ -44,6 +53,8 @@ export default {
         },
         currentType: 'pop',
         isShow: false,
+        tabOffsetTop: 0,
+        isShowTabControlSticky: false
       }
     },
     components: {
@@ -62,10 +73,15 @@ export default {
       this.getGoodsData('pop')
       this.getGoodsData('new')
       this.getGoodsData('sell')
+    },
+    mounted() {
+      // 不要在created中查询节点和获取data中的数据
       // 监听事件总线中的信息
+      const refresh = debounce(this.$refs.scroll.refresh,500);
       this.$bus.$on('itemImagLoad',() => {
-        this.$refs.scroll.refresh();
+        refresh();
       })
+      
     },
     computed: {
       // 选择商品数据的type
@@ -103,12 +119,25 @@ export default {
             this.currentType = 'sell'
             break;
         }
+        // 避免两个tabcontrol的选中不一样
+        this.$refs.tabcontrol1.currentindex = index;
+        this.$refs.tabcontrol2.currentindex = index;
       },
       backtop(){
         this.$refs.scroll.scrollTo(0,0);
       },
       scrollPosition(position){
         this.isShow = Math.abs(position.y) > 1000;
+        this.isShowTabControlSticky = Math.abs(position.y) > this.tabOffsetTop;
+      },
+      loadMore(){
+        // 当前的currentType保存的就是要请求的页面
+        this.getGoodsData(this.currentType);
+        // 每次上拉加载完成后要调用finnishPullUp函数，否则下次下拉加载无法生效
+        this.$refs.scroll.finishPullUp();
+      },
+      swiperImgLoad(){
+        this.tabOffsetTop = this.$refs.tabcontrol2.$el.offsetTop;
       }
     },
 }
@@ -121,13 +150,14 @@ export default {
 }
 .home-nav{
   background-color: var(--color-tint);
-    color: #fff;
-    /* position: fixed;
-    right: 0;
-    left: 0;
-    top: 0;
-    z-index: 9; */
-    /* position: relative; 下面加了overflow，这里就不用设置了 */
+  color: #fff;
+  /* 因为滚动区域已经确定，不涉及导航栏，不需要设置position */
+  /* position: fixed;
+  right: 0;
+  left: 0;
+  top: 0;
+  z-index: 9; */
+  
 }
 /* .tab-control {
   position: sticky;
