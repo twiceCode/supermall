@@ -54,7 +54,8 @@ export default {
         currentType: 'pop',
         isShow: false,
         tabOffsetTop: 0,
-        isShowTabControlSticky: false
+        isShowTabControlSticky: false,
+        saveY: 0
       }
     },
     components: {
@@ -82,6 +83,18 @@ export default {
         refresh();
       })
       
+    },
+    activated() {
+      // 当该组件为路由组件时，会有activated和deactivated两个钩子函数，当
+      // 该组件激活时调用activated函数，当离开该组件时调用deactivated函数
+
+      // 当回到home页面时跳转到上回停留的地方
+      this.$refs.scroll.scrollTo(0,this.saveY,0);
+      // 刷新better-scroll以防出现异常
+      this.$refs.scroll.refresh();
+    },
+    deactivated() {
+      this.saveY = this.$refs.scroll.saveY();
     },
     computed: {
       // 选择商品数据的type
@@ -137,6 +150,7 @@ export default {
         this.$refs.scroll.finishPullUp();
       },
       swiperImgLoad(){
+        // 取得tabcontrol2到顶面的距离
         this.tabOffsetTop = this.$refs.tabcontrol2.$el.offsetTop;
       }
     },
