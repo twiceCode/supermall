@@ -1,5 +1,5 @@
 <template>
-  <div class="goods-list">
+  <div class="goods-list" @click="toDetail">
       <img :src="goodsitem.show.img" alt="" @load="itemImagLoad">
       <div class="item-info">
           <p>{{goodsitem.title}}</p>
@@ -23,6 +23,10 @@ export default {
     methods: {
         itemImagLoad(){
             this.$bus.$emit('itemImagLoad');
+        },
+        toDetail(){
+            // 通过路由跳转到详情页,push()方法可以返回，replace()方法不能返回
+            this.$router.push('/detail/'+ this.goodsitem.iid);
         }
     },
 }

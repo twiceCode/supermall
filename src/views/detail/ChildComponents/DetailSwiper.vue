@@ -1,19 +1,23 @@
 <template>
-  <swiper>
-      <swiper-item v-for="(e,index) in banners" :key="index">
-        <a :href="e.link">
-          <img :src="e.image" alt="" @load="imgLoad">
-        </a>
+  <swiper class="swiper-container">
+      <swiper-item v-for="(item,index) in topImages" :key="index">
+          <img :src="item" alt="">
       </swiper-item>
   </swiper>
 </template>
 
 <script>
+
 import {Swiper,SwiperItem} from 'components/common/swiper/index'
+
 export default {
-    name: 'HomeSwiper',
+    data() {
+        return {
+            
+        }
+    },
     props: {
-        banners: {
+        topImages: {
             type: Array,
             default(){
                 return [];
@@ -24,14 +28,15 @@ export default {
         Swiper,
         SwiperItem
     },
-    methods: {
-      imgLoad(){
-        this.$emit('imgLoad');
-      }
+    mounted() {
+        
     },
 }
 </script>
 
 <style>
-
+.swiper-container {
+    height: 300px;
+    overflow: hidden;
+}
 </style>
